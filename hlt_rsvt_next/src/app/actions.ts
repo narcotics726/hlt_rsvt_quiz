@@ -5,6 +5,8 @@ import * as couchbase from 'couchbase';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { Couch } from '@/lib/couch';
+import bcrypt from 'bcrypt';
 
 const CreateReservationFormSchema = z.object({
     customerName: z.string().min(2).max(50),
@@ -23,16 +25,6 @@ export type State = {
     message?: string | null;
 };
 
-async function connectToCouch(): Promise<couchbase.Scope> {
-    const cluster = await couchbase.connect('couchbase://localhost', {
-        username: 'admin',
-        password: '123456',
-    });
-    const bucket = cluster.bucket('default');
-
-    return bucket.scope('hlt_reservation');
-}
-
 export async function createReservation(prevState: State, formData: FormData) {
     const rawFormData = Object.fromEntries(formData.entries());
     const validatedFields = CreateReservationFormSchema.safeParse(rawFormData);
@@ -43,7 +35,7 @@ export async function createReservation(prevState: State, formData: FormData) {
         };
     }
 
-    const scope = await connectToCouch();
+    const scope = await Couch.getScope();
     const collection = scope.collection('reservations');
     await collection.upsert('reservation::' + Date.now(), {
         ...validatedFields.data,
@@ -61,14 +53,14 @@ export async function createReservation(prevState: State, formData: FormData) {
 
 export async function getPhoneBySession(): Promise<string | null> {
     const sessionId = cookies().get('hlt-rsvt.session-token')?.value;
-    const scope = await connectToCouch();
+    const scope = await Couch.getScope();
     const session = await scope.collection('sessions').get('session::' + sessionId).catch(() => null);
 
     return (session?.content?.phone?.toString()) ?? null;
 }
 
 export async function findReservationsBySessionId() {
-    const scope = await connectToCouch();
+    const scope = await Couch.getScope();
     const phone = await getPhoneBySession();
     if (!phone) {
         redirect('/reservations/create');
@@ -84,7 +76,7 @@ export async function findReservationsBySessionId() {
 }
 
 export async function cancelReservation(id: string) {
-    const scope = await connectToCouch();
+    const scope = await Couch.getScope();
     const collection = scope.collection('reservations');
     const resv = await collection.get(id).catch(() => null);
     if (resv) {
@@ -96,4 +88,27 @@ export async function cancelReservation(id: string) {
 
     revalidatePath('/reservations');
     redirect('/reservations');
+}
+
+export async function empAuth(prevState: string | null, formData: FormData) {
+    const scope = await Couch.getScope();
+    const query = `SELECT employees.*, meta(employees).id AS id FROM employees WHERE username = $1`;
+    const result = await scope.query(query, { parameters: [formData.get('username')] });
+    if (result.rows.length === 0) {
+        return 'Invalid credentials';
+    }
+
+    const employee = result.rows[0];
+    const pwd = formData.get('password')?.toString() ?? null;
+    if (pwd === null) {
+        return 'Invalid credentials';
+    }
+    const passwordMatch = await bcrypt.compare(pwd, employee.password);
+
+    if (!passwordMatch) {
+        return 'Invalid credentials';
+    }
+
+    // set jwt
+    redirect('/internal/reservations');
 }
