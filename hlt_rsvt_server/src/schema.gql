@@ -1,0 +1,11 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Reservation {
+  id: String!
+}
+
+type Query {
+  reservation(id: String!): Reservation!
+}
