@@ -1,0 +1,18 @@
+type Reservation {
+    id: String!
+    customerName: String!
+    customerPhone: String!
+    status: String!
+    tableSize: Int!
+    time: String!
+}
+
+type PaginationOfReservation {
+    totalCount: Int!
+    reservations: [Reservation]
+}
+
+type Query {
+    reservation(id: String!): Reservation
+    reservations(first: Int, offset: Int) : PaginationOfReservation
+}

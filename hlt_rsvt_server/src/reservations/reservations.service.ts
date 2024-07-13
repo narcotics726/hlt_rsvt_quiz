@@ -6,6 +6,10 @@ export class ReservationsService {
     constructor(private readonly couchService: CouchService) {}
 
     async findOneById(id: string) {
-        return { id };
+        return this.couchService.findReservationById(id);
+    }
+
+    async findAll(first: number, offset: number) {
+        return this.couchService.findAllReservations(first, offset);
     }
 }

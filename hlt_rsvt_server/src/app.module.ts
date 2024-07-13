@@ -12,7 +12,11 @@ import { ConfigModule } from '@nestjs/config';
     imports: [
         GraphQLModule.forRoot<ApolloDriverConfig>({
             driver: ApolloDriver,
-            autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
+            typePaths: ['./**/*.graphql'],
+            definitions: {
+                path: path.join(process.cwd(), 'src/graphql.ts'),
+                outputAs: 'class',
+            },
         }),
         ConfigModule.forRoot({ isGlobal: true }),
         ReservationsModule,

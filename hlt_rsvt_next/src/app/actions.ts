@@ -7,6 +7,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Couch } from '@/lib/couch';
 import bcrypt from 'bcrypt';
+import { GqlClient } from '@/lib/gql_client';
+import { gql } from '@apollo/client';
 
 const CreateReservationFormSchema = z.object({
     customerName: z.string().min(2).max(50),
@@ -43,9 +45,12 @@ export async function createReservation(prevState: State, formData: FormData) {
     });
 
     const sessionPhoneCollection = scope.collection('sessions');
-    await sessionPhoneCollection.upsert('session::' + cookies().get('hlt-rsvt.session-token')?.value, {
-        phone: validatedFields.data.customerPhone,
-    });
+    await sessionPhoneCollection.upsert(
+        'session::' + cookies().get('hlt-rsvt.session-token')?.value,
+        {
+            phone: validatedFields.data.customerPhone,
+        }
+    );
 
     revalidatePath('/reservations');
     redirect('/reservations');
@@ -54,9 +59,12 @@ export async function createReservation(prevState: State, formData: FormData) {
 export async function getPhoneBySession(): Promise<string | null> {
     const sessionId = cookies().get('hlt-rsvt.session-token')?.value;
     const scope = await Couch.getScope();
-    const session = await scope.collection('sessions').get('session::' + sessionId).catch(() => null);
+    const session = await scope
+        .collection('sessions')
+        .get('session::' + sessionId)
+        .catch(() => null);
 
-    return (session?.content?.phone?.toString()) ?? null;
+    return session?.content?.phone?.toString() ?? null;
 }
 
 export async function findReservationsBySessionId() {
@@ -93,7 +101,9 @@ export async function cancelReservation(id: string) {
 export async function empAuth(prevState: string | null, formData: FormData) {
     const scope = await Couch.getScope();
     const query = `SELECT employees.*, meta(employees).id AS id FROM employees WHERE username = $1`;
-    const result = await scope.query(query, { parameters: [formData.get('username')] });
+    const result = await scope.query(query, {
+        parameters: [formData.get('username')],
+    });
     if (result.rows.length === 0) {
         return 'Invalid credentials';
     }
@@ -111,4 +121,28 @@ export async function empAuth(prevState: string | null, formData: FormData) {
 
     // set jwt
     redirect('/internal/reservations');
+}
+
+export async function empGetReservations(page: number = 1) {
+    const client = GqlClient.getClient();
+    const offset = (page - 1) * 5;
+    const result = await client.query({
+        query: gql`
+            {
+                reservations(offset: ${offset}) {
+                    totalCount
+                    reservations {
+                        id
+                        customerName
+                        customerPhone
+                        status
+                        tableSize
+                        time
+                    }
+                }
+            }
+        `,
+    });
+
+    return result.data.reservations;
 }
