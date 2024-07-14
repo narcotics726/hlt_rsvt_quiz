@@ -11,7 +11,7 @@ export default async function Page({
 }) {
     const page = Number(searchParams?.page || '1');
 
-    const result = await empGetReservations(isNaN(page) ? 1 : page);
+    const result = await empGetReservations((isNaN(page) ? 1 : page));
     const pages = Math.ceil(result.totalCount / 5);
     const reservations = result.reservations;
 

@@ -16,3 +16,15 @@ type Query {
     reservation(id: String!): Reservation
     reservations(first: Int, offset: Int) : PaginationOfReservation
 }
+
+input ReservationInput {
+    customerName: String
+    customerPhone: String
+    status: String
+    tableSize: Int
+    time: String
+}
+
+type Mutation {
+    modifyReservation(id: String!, rsvt: ReservationInput!): Reservation
+}

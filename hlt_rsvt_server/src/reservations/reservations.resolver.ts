@@ -1,5 +1,6 @@
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ReservationsService } from './reservations.service';
+import { ReservationInput } from 'src/graphql';
 
 @Resolver('Reservation')
 export class ReservationsResolver {
@@ -16,5 +17,13 @@ export class ReservationsResolver {
         @Args('offset') offset: number = 0,
     ) {
         return this.rsvtSvc.findAll(first, offset);
+    }
+
+    @Mutation()
+    async modifyReservation(
+        @Args('id') id: string,
+        @Args('rsvt') rsvt: ReservationInput,
+    ) {
+        return this.rsvtSvc.update(id, rsvt);
     }
 }

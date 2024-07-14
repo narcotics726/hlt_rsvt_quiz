@@ -129,7 +129,7 @@ export async function empGetReservations(page: number = 1) {
     const result = await client.query({
         query: gql`
             {
-                reservations(offset: ${offset}) {
+                reservations(first: 5, offset: ${offset}) {
                     totalCount
                     reservations {
                         id
