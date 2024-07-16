@@ -48,7 +48,8 @@ export default function CreateReservationForm(props: { phone: string | null }) {
                     type="number"
                     id="customerPhone"
                     name="customerPhone"
-                    defaultValue={'12345678901'}
+                    defaultValue={props.phone || ''}
+                    readOnly
                     aria-describedby="customerPhone-error"
                     className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />

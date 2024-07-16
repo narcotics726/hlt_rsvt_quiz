@@ -44,27 +44,27 @@ export async function createReservation(prevState: State, formData: FormData) {
         status: 'pending',
     });
 
-    const sessionPhoneCollection = scope.collection('sessions');
-    await sessionPhoneCollection.upsert(
-        'session::' + cookies().get('hlt-rsvt.session-token')?.value,
-        {
-            phone: validatedFields.data.customerPhone,
-        }
-    );
-
     revalidatePath('/reservations');
     redirect('/reservations');
 }
 
 export async function getPhoneBySession(): Promise<string | null> {
     const sessionId = cookies().get('hlt-rsvt.session-token')?.value;
-    const scope = await Couch.getScope();
-    const session = await scope
-        .collection('sessions')
-        .get('session::' + sessionId)
-        .catch(() => null);
+    const baseURL = process.env.HLT_RSVT_REST_SERVER_URL;
+    const customerInfoAPI = '/auth/customer/info';
 
-    return session?.content?.phone?.toString() ?? null;
+    const response = await fetch(baseURL + customerInfoAPI, {
+        headers: {
+            Authorization: `Bearer ${sessionId}`,
+            ContentType: 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        return null;
+    }
+
+    return (await response.json()).phone;
 }
 
 export async function findReservationsBySessionId() {

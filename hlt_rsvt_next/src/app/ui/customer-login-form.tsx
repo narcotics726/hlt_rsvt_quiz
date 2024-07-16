@@ -63,6 +63,15 @@ export function CustomerLoginForm() {
                                         name="verificationCode"
                                         placeholder="Input the 6-digit verification code"
                                     />
+                                    <div className="flex h-8 items-end space-x-1">
+                                        {state && (
+                                            <>
+                                                <p className="text-sm text-red-500">
+                                                    {state}
+                                                </p>
+                                            </>
+                                        )}
+                                    </div>
                                 </ModalBody>
                                 <ModalFooter>
                                     <Button
@@ -72,7 +81,10 @@ export function CustomerLoginForm() {
                                     >
                                         Close
                                     </Button>
-                                    <Tooltip content="A new account will be created for you if you do not have one yet." placement='bottom-end'>
+                                    <Tooltip
+                                        content="A new account will be created for you if you do not have one yet."
+                                        placement="bottom-end"
+                                    >
                                         <Input
                                             type="submit"
                                             value="Continue"
