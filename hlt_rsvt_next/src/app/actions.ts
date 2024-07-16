@@ -51,7 +51,7 @@ export async function createReservation(prevState: State, formData: FormData) {
 export async function getPhoneBySession(): Promise<string | null> {
     const sessionId = cookies().get('hlt-rsvt.session-token')?.value;
     const baseURL = process.env.HLT_RSVT_REST_SERVER_URL;
-    const customerInfoAPI = '/auth/customer/info';
+    const customerInfoAPI = '/auth/info';
 
     const response = await fetch(baseURL + customerInfoAPI, {
         headers: {

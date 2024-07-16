@@ -29,7 +29,7 @@ export class AuthController {
         );
     }
 
-    @Get('customer/info')
+    @Get('info')
     async customerInfo(@Request() req) {
         return req.user;
     }
