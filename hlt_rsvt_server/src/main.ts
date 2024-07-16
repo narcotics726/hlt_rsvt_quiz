@@ -7,7 +7,7 @@ async function bootstrap() {
 
     // init
     const couchService = await app.resolve(CouchService);
-    await couchService.init();
+    await couchService.getScope();
 
     await app.listen(3001);
 }

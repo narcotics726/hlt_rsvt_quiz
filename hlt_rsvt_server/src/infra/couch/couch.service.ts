@@ -9,7 +9,7 @@ export class CouchService {
 
     private static _scope: couchbase.Scope;
 
-    async init() {
+    public async getScope(scope: string = 'hlt_reservation') {
         if (!CouchService._scope) {
             const client = await couchbase.connect(
                 this.configService.get('HLT_RSVT_COUCH_CONNSTR'),
@@ -19,10 +19,10 @@ export class CouchService {
                 },
             );
 
-            CouchService._scope = client
-                .bucket('default')
-                .scope('hlt_reservation');
+            CouchService._scope = client.bucket('default').scope(scope);
         }
+
+        return CouchService._scope;
     }
 
     // #TODO: move them into reservation module
@@ -51,7 +51,9 @@ export class CouchService {
             FROM reservations ORDER BY id LIMIT $1 OFFSET $2
         `;
 
-        const result = await CouchService._scope.query(query, {
+        const result = await (
+            await this.getScope()
+        ).query(query, {
             parameters: [first, offset],
         });
 

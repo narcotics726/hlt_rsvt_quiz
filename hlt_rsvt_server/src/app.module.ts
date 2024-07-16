@@ -1,12 +1,12 @@
 import * as path from 'node:path';
 
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ReservationsModule } from './reservations/reservations.module';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -19,9 +19,12 @@ import { ConfigModule } from '@nestjs/config';
             },
         }),
         ConfigModule.forRoot({ isGlobal: true }),
+
         ReservationsModule,
+        AuthModule,
+        UsersModule,
     ],
-    controllers: [AppController],
-    providers: [AppService],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}

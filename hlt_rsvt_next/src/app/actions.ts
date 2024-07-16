@@ -146,3 +146,28 @@ export async function empGetReservations(page: number = 1) {
 
     return result.data.reservations;
 }
+
+export async function customerAuth(
+    prevState: string | null,
+    formData: FormData
+) {
+    const baseURL = process.env.HLT_RSVT_REST_SERVER_URL;
+    const customerAuthAPI = `${baseURL}/auth/customer/login`;
+    const { phone, verificationCode } = Object.fromEntries(formData.entries());
+
+    const response = await fetch(customerAuthAPI, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone, verificationCode }),
+    });
+
+    if (!response.ok) {
+        return 'Invalid verification code';
+    }
+
+    cookies().set('hlt-rsvt.session-token', (await response.json()).access_token);
+
+    redirect('/reservations');
+}
