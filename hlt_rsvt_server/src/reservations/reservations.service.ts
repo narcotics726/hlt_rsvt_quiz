@@ -10,8 +10,24 @@ export class ReservationsService {
         return this.couchService.findReservationById(id);
     }
 
-    async findAll(first: number, offset: number) {
-        return this.couchService.findAllReservations(first, offset);
+    async findAll(
+        first: number,
+        offset: number,
+        timeRange?: { from?: string; until?: string },
+        status?: string,
+    ) {
+        const result = await this.couchService.findAllReservations(
+            first,
+            offset,
+            timeRange,
+            status,
+        );
+
+        console.log(
+            `[reservations] first: ${first}, offset: ${offset}, status: ${status}, result: ${JSON.stringify(result)}`,
+        );
+
+        return result;
     }
 
     async update(id: string, rsvt: ReservationInput) {

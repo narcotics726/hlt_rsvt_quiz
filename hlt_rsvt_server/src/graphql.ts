@@ -8,6 +8,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
+export class ReservationTimeRangeInput {
+    from?: Nullable<string>;
+    until?: Nullable<string>;
+}
+
 export class ReservationInput {
     customerName?: Nullable<string>;
     customerPhone?: Nullable<string>;
@@ -33,7 +38,7 @@ export class PaginationOfReservation {
 export abstract class IQuery {
     abstract reservation(id: string): Nullable<Reservation> | Promise<Nullable<Reservation>>;
 
-    abstract reservations(first?: Nullable<number>, offset?: Nullable<number>): Nullable<PaginationOfReservation> | Promise<Nullable<PaginationOfReservation>>;
+    abstract reservations(first?: Nullable<number>, offset?: Nullable<number>, status?: Nullable<string>, timeRange?: Nullable<ReservationTimeRangeInput>): Nullable<PaginationOfReservation> | Promise<Nullable<PaginationOfReservation>>;
 }
 
 export abstract class IMutation {

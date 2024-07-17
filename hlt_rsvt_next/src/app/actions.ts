@@ -43,7 +43,11 @@ export async function createReservation(prevState: State, formData: FormData) {
     // check if reservation time is at least 1 hour in the future
     if (datetime.getTime() - Date.now() < 3600 * 1000) {
         return {
-            errors: { time: ['Reservation time must be at least 1 hour in the future'] },
+            errors: {
+                time: [
+                    'Reservation time must be at least 1 hour in the future',
+                ],
+            },
             message: 'Invalid reservation time',
         };
     }
@@ -168,13 +172,19 @@ export async function empAuth(prevState: string | null, formData: FormData) {
     redirect('/internal/reservations');
 }
 
-export async function empGetReservations(page: number = 1) {
+export async function empGetReservations(
+    page: number = 1,
+    status?: string,
+    timeRange?: { from?: string; until?: string }
+) {
+    console.log(`[empGetReservations] page: ${page}, status: ${status}, timeRange: ${JSON.stringify(timeRange)}`);
     const client = GqlClient.getClient();
     const offset = (page - 1) * 5;
     const result = await client.query({
         query: gql`
+            query R($offset:Int, $status: String, $timeRange: ReservationTimeRangeInput)
             {
-                reservations(first: 5, offset: ${offset}) {
+                reservations(first: 5, offset: $offset, timeRange: $timeRange, status: $status) {
                     totalCount
                     reservations {
                         id
@@ -187,6 +197,11 @@ export async function empGetReservations(page: number = 1) {
                 }
             }
         `,
+        variables: {
+            offset,
+            status,
+            timeRange,
+        }
     });
 
     return result.data.reservations;

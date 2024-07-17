@@ -12,9 +12,14 @@ type PaginationOfReservation {
     reservations: [Reservation]
 }
 
+input ReservationTimeRangeInput {
+    from: String
+    until: String
+}
+
 type Query {
     reservation(id: String!): Reservation
-    reservations(first: Int, offset: Int) : PaginationOfReservation
+    reservations(first: Int, offset: Int, status: String, timeRange: ReservationTimeRangeInput) : PaginationOfReservation
 }
 
 input ReservationInput {

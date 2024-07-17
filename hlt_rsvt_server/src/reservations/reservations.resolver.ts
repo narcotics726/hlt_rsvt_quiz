@@ -18,8 +18,13 @@ export class ReservationsResolver {
     async reservations(
         @Args('first') first: number = 5,
         @Args('offset') offset: number = 0,
+        @Args('status') status?: string,
+        @Args('timeRange') timeRange?: { from?: string; until?: string },
     ) {
-        return this.rsvtSvc.findAll(first, offset);
+        console.log(
+            `[reservations] first: ${first}, offset: ${offset}, status: ${status}`,
+        );
+        return this.rsvtSvc.findAll(first, offset, timeRange, status);
     }
 
     @Mutation()

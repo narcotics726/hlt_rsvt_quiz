@@ -43,18 +43,46 @@ export class CouchService {
         return null;
     }
 
-    async findAllReservations(first: number, offset: number) {
+    async findAllReservations(
+        first: number,
+        offset: number,
+        timeRange?: { from?: string; until?: string },
+        status?: string,
+    ) {
+        const args: unknown[] = [first, offset];
+        const conditions = [];
+        if (timeRange?.from) {
+            args.push(timeRange.from);
+            conditions.push(`time >= $${args.length}`);
+        }
+
+        if (timeRange?.until) {
+            args.push(timeRange.until);
+            conditions.push(`time <= $${args.length}`);
+        }
+
+        if (status) {
+            args.push(status);
+            conditions.push(`status = $${args.length}`);
+        }
+
+        const conditionsStr = conditions.length
+            ? `WHERE ${conditions.join(' AND ')}`
+            : '';
+
         // get from couch with pagination
         const query = `
             SELECT 
                 reservations.*, meta(reservations).id AS id 
-            FROM reservations ORDER BY id LIMIT $1 OFFSET $2
+            FROM reservations 
+            ${conditionsStr}
+            ORDER BY id LIMIT $1 OFFSET $2
         `;
-
+        console.log(query, JSON.stringify(args));
         const result = await (
             await this.getScope()
         ).query(query, {
-            parameters: [first, offset],
+            parameters: args,
         });
 
         const queryTotal = `
