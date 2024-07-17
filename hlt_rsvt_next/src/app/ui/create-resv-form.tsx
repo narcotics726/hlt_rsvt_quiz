@@ -1,8 +1,11 @@
 'use client';
 import { createReservation, State } from '@/app/actions';
+import { Input, Select, SelectItem } from '@nextui-org/react';
 import { useFormState } from 'react-dom';
 
-export default function CreateReservationForm(props: { phone?: string | null }) {
+export default function CreateReservationForm(props: {
+    phone?: string | null;
+}) {
     const initialState: State = { message: null, errors: {} };
     const [state, formAction] = useFormState(createReservation, initialState);
     return (
@@ -14,13 +17,12 @@ export default function CreateReservationForm(props: { phone?: string | null }) 
                 >
                     Name
                 </label>
-                <input
+                <Input
                     id="customerName"
                     name="customerName"
                     type="text"
                     defaultValue={'Fred Fox'}
                     aria-describedby="customerName-error"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <div
                     id="customerName-error"
@@ -44,14 +46,12 @@ export default function CreateReservationForm(props: { phone?: string | null }) 
                 >
                     Phone
                 </label>
-                <input
-                    type="number"
-                    id="customerPhone"
+                <Input
                     name="customerPhone"
-                    defaultValue={props.phone || ''}
-                    readOnly
+                    value={props.phone || ''}
+                    isReadOnly
                     aria-describedby="customerPhone-error"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    isRequired={false}
                 />
                 <div
                     id="customerPhone-error"
@@ -75,14 +75,16 @@ export default function CreateReservationForm(props: { phone?: string | null }) 
                 >
                     Table size
                 </label>
-                <input
-                    type="string"
-                    id="tableSize"
+                <Select
                     name="tableSize"
-                    defaultValue={'2'}
                     aria-describedby="tableSize-error"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                />
+                    defaultSelectedKeys={'2'}
+                >
+                    <SelectItem key="2">2</SelectItem>
+                    <SelectItem key="4">4</SelectItem>
+                    <SelectItem key="6">6</SelectItem>
+                    <SelectItem key="8">8</SelectItem>
+                </Select>
                 <div id="tableSize-error" aria-live="polite" aria-atomic="true">
                     {state.errors?.tableSize &&
                         state.errors.tableSize.map((error: string) => (
@@ -101,13 +103,12 @@ export default function CreateReservationForm(props: { phone?: string | null }) 
                 >
                     Reservation time
                 </label>
-                <input
+                <Input
                     type="datetime-local"
                     id="time"
                     name="time"
-                    defaultValue={new Date().toISOString().slice(0, -8)}
+                    defaultValue={new Date(Date.now() + 3600 * 1000).toISOString().slice(0, -8)}
                     aria-describedby="time-error"
-                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <div id="time-error" aria-live="polite" aria-atomic="true">
                     {state.errors?.time &&
