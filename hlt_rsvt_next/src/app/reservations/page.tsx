@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { findReservationsBySessionId } from '../actions';
+import { findReservations } from '../actions';
 import {
     CancelReservationButton,
     EditReservationButton,
 } from '../ui/resv-button';
 
 export default async function Page() {
-    const reservations = await findReservationsBySessionId();
+    const reservations = await findReservations();
 
     return (
         <div className="container mx-auto max-w-4xl bg-gray-50 p-4 shadow-lg rounded-lg">
@@ -41,8 +41,8 @@ export default async function Page() {
                                 {reservation.status}
                             </td>
                             <td className="border px-4 py-2">
-                                <EditReservationButton id={reservation.id} />
-                                <CancelReservationButton id={reservation.id} />
+                                <EditReservationButton id={reservation.id} isDisabled={reservation.status !== 'pending'}/>
+                                <CancelReservationButton id={reservation.id} isDisabled={reservation.status !== 'pending'}/>
                             </td>
                         </tr>
                     ))}

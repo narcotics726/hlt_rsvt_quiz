@@ -10,6 +10,25 @@ export class AuthService {
         private readonly jwtSvc: JwtService,
     ) {}
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async employeeLogin(username: string, _password: string) {
+        if (username !== 'admin') {
+            throw new UnauthorizedException();
+        }
+
+        const jwtPayload = {
+            sub: 0,
+            username: 'admin',
+            role: 'employee',
+        };
+
+        return {
+            access_token: await this.jwtSvc.signAsync(jwtPayload, {
+                secret: getJwtSecret(),
+            }),
+        };
+    }
+
     async customerLogin(phone: string, verificationCode: string) {
         let user = await this.usersSvc.findCustomerByPhone(phone);
 

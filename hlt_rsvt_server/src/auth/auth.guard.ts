@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { getJwtSecret } from './jwt_secret';
 import { Reflector } from '@nestjs/core';
 import { NO_AUTH_KEY } from './noAuth.deco';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -23,12 +24,21 @@ export class AuthGuard implements CanActivate {
         ]);
     }
 
+    protected getRequest(context: ExecutionContext) {
+        return context.switchToHttp().getRequest();
+    }
+
     async canActivate(context: ExecutionContext): Promise<boolean> {
         if (this.isContextPublic(context)) {
             return true;
         }
 
-        const req = context.switchToHttp().getRequest();
+        const req =
+            this.getRequest(context) ??
+            GqlExecutionContext.create(context).getContext().req;
+        console.log(
+            `[AuthGuard] #canActivate: ${JSON.stringify(req?.headers)}`,
+        );
         const [type, token] = req.headers.authorization?.split(' ') ?? [];
         if (type !== 'Bearer') {
             console.log(

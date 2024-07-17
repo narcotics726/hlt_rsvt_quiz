@@ -20,12 +20,25 @@ export class AuthController {
     async customerLogin(
         @Body() loginDto: { phone: string; verificationCode: string },
     ) {
-        console.log(
-            `[AuthController] #customerLogin: ${JSON.stringify(loginDto)}`,
-        );
         return await this.authService.customerLogin(
             loginDto.phone,
             loginDto.verificationCode,
+        );
+    }
+
+    @NO_AUTH()
+    @HttpCode(HttpStatus.OK)
+    @Post('emp/login')
+    async employeeLogin(
+        @Request() req: any,
+        @Body() loginDto: { username: string; password: string },
+    ) {
+        console.log(
+            `[AuthController] #employeeLogin: ${JSON.stringify(loginDto)}, req: ${JSON.stringify(req.body)}`,
+        );
+        return await this.authService.employeeLogin(
+            loginDto.username,
+            loginDto.password,
         );
     }
 

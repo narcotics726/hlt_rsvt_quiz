@@ -1,7 +1,10 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ReservationsService } from './reservations.service';
 import { ReservationInput } from 'src/graphql';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Resolver('Reservation')
 export class ReservationsResolver {
     constructor(private rsvtSvc: ReservationsService) {}
