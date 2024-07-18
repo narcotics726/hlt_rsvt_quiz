@@ -42,16 +42,18 @@ HLT_RSVT_GQL_SERVER_URL=http://127.0.0.1:3001/graphql
 HLT_RSVT_REST_SERVER_URL=http://127.0.0.1:3001
 ```
 
+Or just `cp hlt_rsvt_server/.env.example hlt_rsvt_server/.env` and `cp hlt_rsvt_next/.env.example hlt_rsvt_next/.env.local` as templates.
+
 Then install the deps, start the server and the client:
 
 ```bash
-cd hlt_rsvt_quiz/hlt_rsvt_server
+cd hlt_rsvt_server
 npm i && npm start
 ```
 
 ```bash
-cd hlt_rsvt_quiz/hlt_rsvt_next
-npm i && npm start
+cd hlt_rsvt_next
+npm i && npm run build && npm start
 ```
 
 Visit `localhost:3000` to see the app.
