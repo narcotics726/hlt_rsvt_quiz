@@ -6,8 +6,7 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
     // init
-    const couchService = await app.resolve(CouchService);
-    await couchService.getScope();
+    CouchService.initDb();
 
     await app.listen(3001);
 }

@@ -122,4 +122,37 @@ export class CouchService {
 
         return null;
     }
+
+    public static async initDb() {
+        const cluster = await couchbase.connect(
+            process.env.HLT_RSVT_COUCH_CONNSTR!,
+            {
+                username: process.env.HLT_RSVT_COUCH_USERNAME!,
+                password: process.env.HLT_RSVT_COUCH_PASSWORD!,
+            },
+        );
+        const bucket = await cluster
+            .buckets()
+            .getBucket('hlt')
+            .catch(() => null);
+        if (!bucket) {
+            await cluster.buckets().createBucket({
+                name: 'hlt',
+                ramQuotaMB: 100,
+                bucketType: couchbase.BucketType.Couchbase,
+            });
+        }
+
+        // not sure why, but sometimes the bucket and scope are not ready at once
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await cluster.query(
+            'CREATE SCOPE default:`hlt`.hlt_reservation IF NOT EXISTS',
+        );
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        const scope = cluster.bucket('hlt').scope('hlt_reservation');
+
+        await scope.query('CREATE COLLECTION reservations IF NOT EXISTS');
+        await scope.query('CREATE COLLECTION customers IF NOT EXISTS');
+    }
 }
