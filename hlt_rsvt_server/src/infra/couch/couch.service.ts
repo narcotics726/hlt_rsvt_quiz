@@ -19,7 +19,7 @@ export class CouchService {
                 },
             );
 
-            CouchService._scope = client.bucket('default').scope(scope);
+            CouchService._scope = client.bucket('hlt').scope(scope);
         }
 
         return CouchService._scope;

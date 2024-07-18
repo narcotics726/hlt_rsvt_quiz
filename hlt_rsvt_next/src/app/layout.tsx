@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { Button, Link, Navbar, NavbarBrand, NavbarContent, NavbarItem } from '@nextui-org/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,9 +18,29 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-            <Providers>
-                {children}
-            </Providers>
+                <Providers>
+                    <Navbar>
+                        <NavbarBrand>
+                            <p className="font-bold text-inherit">HLT RSVT</p>
+                        </NavbarBrand>
+                        <NavbarContent
+                            className="hidden sm:flex gap-4"
+                            justify="center"
+                        >
+                            <NavbarItem>
+                                <Link href="/reservations">
+                                    Reservations
+                                </Link>
+                            </NavbarItem>
+                            <NavbarItem>
+                                <Link href="/internal/reservations">
+                                    Admin
+                                </Link>
+                            </NavbarItem>
+                        </NavbarContent>
+                    </Navbar>
+                    {children}
+                </Providers>
             </body>
         </html>
     );
