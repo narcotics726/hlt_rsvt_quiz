@@ -13,6 +13,33 @@
 
 Due to the time limitation, there are still lots of thing I didn't implemented: unit tests, Playwright for e2e testing, docker files, etc. Hope this project could show the rough ideas of my design.
 
+## Some implicit bussiness rules
+
+1. Customers have to login before making reservations (while the login process should be as easy as possible) - DONE
+2. Employees have to login before manipulating reservations - DONE
+3. A reservation should have an "expiration", when the reserved time passed and employee didn't mark it as "Done", the reservation should be treated as "Expired". - DONE
+4. The seats are not infinite. When a reservation is made, the `available seats` should be decreased by one. - TODO
+   - Unlike tickets or goods, we could not simply use a number to represent the `available seats`. We have a `totalCount` of seats, but the `availableCount` is calculated by the reservation's time.
+   - To make it simpler, we can assume that every reservation will reserve the seat for 2 hours, for example. Before a reservation is created, a `getAvailableSeats(reservationTime, tableSize)` function should be called, to calculate how many seats have been reserved in the time range.
+
+     Something like:
+     ```
+     async function getAvailableSeats(reservationTime: number, tableSize: number): Promise<number> {
+         const timeFrom = reservationTime - 7200 * 1000;
+         const timeUntil = reservationTime + 7200 * 1000;
+         // any reservations have time fall in this range are treated as possibly conflict
+         const sql = `
+             SELECT COUNT(1) FROM reservations WHERE (status = 'pending' OR status = 'preorder') AND tableSize = $1 AND time > $2 AND time < $3
+         `;
+         const args = [tableSize, timeFrom, timeUntil];
+         const reservedCount = await SOME_QUERY(sql, args);
+         const availableCount = TOTAL_SEATS[tableSize] - reservedCount;
+
+         return availableCount;
+     }
+     ```
+ 5. To avoid some potential concurrent conflict during the available seats calculation, especially when multiple reservations are created at the same time. We may also make the "reservation create" a two-step process. First we create a reservation order with an unique id after the availableCount checks passed. The status of the newly created reservation should be `preorder`. Then we use a message queue to handle the `preorder` one by one, do the checks again before mark it as `pending`.
+
 ## How to start locally
 
 Before starting the project, make sure a couchbase instance is ready, you can use a docker image to start it:
